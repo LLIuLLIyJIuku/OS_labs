@@ -1,0 +1,46 @@
+Exercise 2 - fork() in a loop
+
+Program: ex2.c calls fork() n times in a loop and sleeps 5 seconds after each call.
+Run:  gcc ex2.c -o ex2 && ./ex2 3 &   then run  pstree -p <pid>  several times.
+
+How it works
+------------
+Every process that exists at iteration i (both the parent and all children created
+earlier) continues the same loop and calls fork() again. So on each iteration the
+number of processes doubles:
+
+    after 1st fork: 2 processes
+    after 2nd fork: 4 processes
+    after 3rd fork: 8 processes
+    ...
+    after k-th fork: 2^k processes
+
+n = 3
+-----
+Total processes = 2^3 = 8 (the original one + 7 newly created).
+pstree shows the tree growing every 5 seconds:
+
+    ~1s :  ex2---ex2
+    ~6s :  ex2-+-ex2---ex2
+               `-ex2
+    ~11s:  ex2-+-ex2-+-ex2---ex2
+               |     `-ex2
+               |-ex2---ex2
+               `-ex2
+
+The original process has 3 children (one per iteration), the child created on the
+1st iteration has 2 children, the one created on the 2nd iteration has 1 child,
+and so on (a binomial tree). After ~15 seconds all processes finish.
+
+n = 5
+-----
+Total processes = 2^5 = 32 (the original one + 31 newly created).
+The tree has the same shape but is deeper and wider: the original process has
+5 direct children, its first child has 4 children, etc. The program lives ~25 s
+and pstree changes 5 times (2 -> 4 -> 8 -> 16 -> 32 processes).
+
+Difference between the runs
+---------------------------
+The number of processes grows exponentially with n: 2^n in total, 2^n - 1 created
+by fork(). Increasing n from 3 to 5 increases the number of processes from 8 to
+32 (4 times more), and the program runs 10 seconds longer (5 s per iteration).

@@ -1,0 +1,6 @@
+*.o
+*.out
+*.exe
+lab_*/ex[0-9]
+lab_*/ex[0-9][0-9]
+temp.txt
